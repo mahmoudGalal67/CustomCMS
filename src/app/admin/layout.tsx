@@ -1,15 +1,20 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { AppSidebar } from "./Sidebar.jsx";
 import RightSidebar from "../../cms/RightSidebar";
 import { SidebarProvider, SidebarTrigger } from "../../components/ui/sidebar";
+import type { RootState } from "@/store/store";
 
 import { useCMS } from "../../cms/store";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useSelector } from "react-redux";
 
 function UndoRedoToolbar() {
   const { undo, redo } = useCMS();
-
+  const token = useSelector((state: RootState) => state.auth.token);
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
   return (
     <div className="flex gap-2 mb-4">
       {/* Undo Button */}

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import { nanoid } from "nanoid";
+import { useAddToUserPageMutation } from "@/services/pagesApi";
 
 /* ------------------------------------------------------------------ */
 /* Types */
@@ -32,6 +33,7 @@ export interface Pages {
 
 interface CMSContextValue {
   pages: Pages;
+  setPages: (pages: Pages) => void;
   selectedId: string | null;
   setSelectedId: (id: string | null) => void;
   selectedSection: Section | null;
@@ -45,6 +47,8 @@ interface CMSContextValue {
   undo: () => void;
   redo: () => void;
   saveToBackend: () => Promise<void>;
+  isLoading: boolean;
+  success: boolean;
 }
 
 interface CMSProviderProps {
@@ -62,26 +66,31 @@ const CMSContext = createContext<CMSContextValue | null>(null);
 /* ------------------------------------------------------------------ */
 
 export function CMSProvider({ children }: CMSProviderProps) {
-  const [pages, setPages] = useState<Pages>({
+  const [success, setSuccess] = useState(false);
+  const [updatePage, { isLoading }] = useAddToUserPageMutation();
+
+  const [pages, setPages] = useState<any>({
     home: [
-      {
-        id: nanoid(),
-        type: "hero",
-        props: {
-          title: "Welcome",
-          subtitle: "Click to edit",
-          bg: "#0f172a",
-        },
-      },
-      {
-        id: nanoid(),
-        type: "text",
-        props: {
-          text: "This is a text section",
-        },
-      },
     ],
   });
+  // home: [
+  //   {
+  //     id: nanoid(),
+  //     type: "hero",
+  //     props: {
+  //       title: "Welcome",
+  //       subtitle: "Click to edit",
+  //       bg: "#0f172a",
+  //     },
+  //   },
+  //   {
+  //     id: nanoid(),
+  //     type: "text",
+  //     props: {
+  //       text: "This is a text section",
+  //     },
+  //   },
+  // ],
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -113,19 +122,19 @@ export function CMSProvider({ children }: CMSProviderProps) {
     setPages(next);
   };
 
-  const selectedSection = pages.home.find((s) => s.id === selectedId) ?? null;
+  const selectedSection = pages.home?.find((s: any) => s.id === selectedId) ?? null;
 
   /* ---------- ACTIONS ---------- */
 
   const updateProp = (id: string, prop: string, value: string) => {
     const newPages: Pages = {
       ...pages,
-      home: pages.home.map((s) =>
+      home: pages.home?.map((s: any) =>
         s.id === id
           ? {
-              ...s,
-              props: { ...s.props, [prop]: value },
-            }
+            ...s,
+            props: { ...s.props, [prop]: value },
+          }
           : s
       ),
     };
@@ -136,7 +145,7 @@ export function CMSProvider({ children }: CMSProviderProps) {
   const deleteSection = (id: string) => {
     const newPages: Pages = {
       ...pages,
-      home: pages.home.filter((s) => s.id !== id),
+      home: pages.home?.filter((s: any) => s.id !== id),
     };
 
     saveHistory(newPages);
@@ -158,13 +167,13 @@ export function CMSProvider({ children }: CMSProviderProps) {
       props:
         type === "hero"
           ? {
-              title: "New Hero",
-              subtitle: "Subtitle",
-              bg: "#020617",
-            }
+            title: "New Hero",
+            subtitle: "Subtitle",
+            bg: "#020617",
+          }
           : {
-              text: "New text section",
-            },
+            text: "New text section",
+          },
     };
 
     const arr = [...pages.home];
@@ -175,18 +184,14 @@ export function CMSProvider({ children }: CMSProviderProps) {
 
   const saveToBackend = async () => {
     try {
-      const res = await fetch("/api/save-pages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(pages),
-      });
-
-      if (!res.ok) throw new Error("Failed to save");
-
-      alert("Pages saved successfully!");
+      await updatePage({ title: 'Home', content: pages.home });
+      setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+      }, 1200);
     } catch (err) {
       console.error(err);
-      alert("Error saving pages");
+      setSuccess(false);
     }
   };
 
@@ -194,6 +199,7 @@ export function CMSProvider({ children }: CMSProviderProps) {
     <CMSContext.Provider
       value={{
         pages,
+        setPages,
         selectedId,
         setSelectedId,
         selectedSection,
@@ -204,6 +210,8 @@ export function CMSProvider({ children }: CMSProviderProps) {
         undo,
         redo,
         saveToBackend,
+        isLoading,
+        success,
       }}
     >
       {children}

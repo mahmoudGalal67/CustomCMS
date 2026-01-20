@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { AnimatePresence } from "framer-motion";
+import SuccessButton from "@/components/SuccessButton";
 
 export default function RightSidebar() {
-  const { selectedSection, updateProp, saveToBackend } = useCMS();
+  const { selectedSection, updateProp, saveToBackend, success, isLoading } = useCMS();
 
   if (!selectedSection) {
     return (
@@ -41,9 +43,8 @@ export default function RightSidebar() {
         className="w-6 h-6 absolute top-8 z-10 -left-4 rounded-full p-3 flex items-center justify-center transition-colors"
       >
         <ChevronLeft
-          className={`w-6 h-6 font-bold transition-transform duration-300 ${
-            isOpen ? "rotate-180" : "rotate-0"
-          }`}
+          className={`w-6 h-6 font-bold transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"
+            }`}
         />
       </Button>
       <SidebarContent>
@@ -80,10 +81,15 @@ export default function RightSidebar() {
             </SidebarMenu>
             <div className="flex gap-2 mb-4">
               <button
+                type="submit"
                 onClick={saveToBackend}
-                className="p-2 bg-green-500 text-white rounded"
+                disabled={isLoading}
+                className="cursor-pointer flex w-full justify-center rounded-md bg-[#0F172A] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
               >
-                Save JSON
+                {success ?
+                  <AnimatePresence mode="wait">
+                    <SuccessButton />
+                  </AnimatePresence> : (isLoading ? "Loading..." : "Update")}
               </button>
             </div>
           </SidebarGroupContent>

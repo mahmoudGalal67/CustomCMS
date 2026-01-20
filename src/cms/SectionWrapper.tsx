@@ -30,7 +30,7 @@ export default function SectionWrapper({ section, index, children }: any) {
 
   return (
     <div
-      className={`relative mb-4 group ${active ? "ring-4 ring-blue-500" : ""}`}
+      className={`relative mb-4 group ${active ? "ring-4 ring-blue-500 rounded" : ""}`}
       onClick={() => setSelectedId(section.id)}
     >
       {active && (

@@ -7,7 +7,8 @@ import SectionWrapper from "../../cms/SectionWrapper";
 import Hero from "../../cms/section-types/Hero";
 import Text from "../../cms/section-types/Text";
 
-import type { FC } from "react";
+import { useEffect, type FC } from "react";
+import { useGetPageQuery } from "@/services/pagesApi";
 
 /* ------------------------------------------------------------------ */
 /* Types */
@@ -43,23 +44,33 @@ const MAP: Record<SectionType, FC<any>> = {
 /* ------------------------------------------------------------------ */
 
 export default function Home({ editable }: HomeProps) {
-  const { pages, moveSection } = useCMS() as {
+  const { pages, moveSection, setPages } = useCMS() as unknown as {
     pages: Pages;
     moveSection: (from: number, to: number) => void;
+    setPages: (pages: Pages) => void;
   };
-
+  const { data, isLoading } = useGetPageQuery(undefined);
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
     moveSection(result.source.index, result.destination.index);
   };
+  useEffect(() => {
+    if (data) {
+      setPages({ home: data[0].content });
+    }
+  }, [data]);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (!data) return null;
+  console.log(pages);
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="page">
         {(provided) => (
           <div ref={provided.innerRef} {...provided.droppableProps}>
-            {pages.home.map((s, i) => {
+            {pages.home?.map((s, i) => {
               const Component = MAP[s.type];
 
               if (!Component) return null;
