@@ -7,7 +7,7 @@ import { useAddToUserPageMutation } from "@/services/pagesApi";
 /* Types */
 /* ------------------------------------------------------------------ */
 
-export type SectionType = "hero" | "text";
+export type SectionType = "hero" | "text" | 'banner';
 
 export interface HeroProps {
   title: string;
@@ -18,8 +18,11 @@ export interface HeroProps {
 export interface TextProps {
   text: string;
 }
+export interface BannerProps {
+  slides: { id: string, title: string, subTitle: string, image: string }[];
+}
 
-export type SectionProps = HeroProps | TextProps;
+export type SectionProps = HeroProps | TextProps | BannerProps;
 
 export interface Section {
   id: string;
@@ -38,7 +41,7 @@ interface CMSContextValue {
   setSelectedId: (id: string | null) => void;
   selectedSection: Section | null;
 
-  updateProp: (id: string, prop: string, value: string) => void;
+  updateProp: (id: string, prop: any, value: any) => void;
 
   deleteSection: (id: string) => void;
   moveSection: (from: number, to: number) => void;
@@ -73,24 +76,8 @@ export function CMSProvider({ children }: CMSProviderProps) {
     home: [
     ],
   });
-  // home: [
-  //   {
-  //     id: nanoid(),
-  //     type: "hero",
-  //     props: {
-  //       title: "Welcome",
-  //       subtitle: "Click to edit",
-  //       bg: "#0f172a",
-  //     },
-  //   },
-  //   {
-  //     id: nanoid(),
-  //     type: "text",
-  //     props: {
-  //       text: "This is a text section",
-  //     },
-  //   },
-  // ],
+
+  // const DummyPages = [{ "id": "id1", "type": "hero", "props": { "title": "Welcome", "subtitle": "Click to edit", "bg": "#0f172a" } }, { "id": "Ir_t6VJFrYJshA60YYhuc", "type": "banner", "props": { "slides": [{ "id": "ecd7c7d7-3b7b-4567-80c6-beb8410334ea", "title": "New Slide 01", "subTitle": "Subtitle 01", "image": "\/storage\/uploads\/u0ESKNYvENjP9Zx8NphnRTYWfUx0GBxhgJ4cLRZH.jpg" }, { "id": "3f0d96fc-6faa-4975-acdd-f6f428d22e2b", "title": "New Slide 02", "subTitle": "Subtitle 02", "image": "\/storage\/uploads\/bo5j7f5Wu2M87y6HmGdbr0yTXGZhxix5Vv91GKLs.jpg" }] } }, { "id": "FvwCJvh0UOgnd82LcwKpL", "type": "hero", "props": { "title": "New Hero 2", "subtitle": "test", "bg": "#020617" } }]
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -122,26 +109,38 @@ export function CMSProvider({ children }: CMSProviderProps) {
     setPages(next);
   };
 
+
   const selectedSection = pages.home?.find((s: any) => s.id === selectedId) ?? null;
 
   /* ---------- ACTIONS ---------- */
 
-  const updateProp = (id: string, prop: string, value: string) => {
+  const updateProp = (
+    id: string,
+    prop: string,
+    value: any | ((prev: any) => any)
+  ) => {
     const newPages: Pages = {
       ...pages,
-      home: pages.home?.map((s: any) =>
-        s.id === id
-          ? {
-            ...s,
-            props: { ...s.props, [prop]: value },
-          }
-          : s
-      ),
+      home: pages.home?.map((s: Section) => {
+        if (s.id !== id) return s;
+
+        const prevValue = (s.props as any)[prop];
+
+        return {
+          ...s,
+          props: {
+            ...s.props,
+            [prop]:
+              typeof value === "function"
+                ? value(prevValue) // updater
+                : value,
+          },
+        };
+      }),
     };
 
     saveHistory(newPages);
   };
-
   const deleteSection = (id: string) => {
     const newPages: Pages = {
       ...pages,
@@ -171,7 +170,11 @@ export function CMSProvider({ children }: CMSProviderProps) {
             subtitle: "Subtitle",
             bg: "#020617",
           }
-          : {
+          : type === "banner" ? {
+            slides: [
+              { id: nanoid(), title: "Banner Title", subTitle: "banner subTitle", image: '' }
+            ]
+          } : {
             text: "New text section",
           },
     };

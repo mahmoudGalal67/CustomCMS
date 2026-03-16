@@ -1,3 +1,7 @@
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import AdminLayout from "./app/admin/layout.jsx";
 import HomeEditor from "./app/admin/pages/HomeEditor.jsx";

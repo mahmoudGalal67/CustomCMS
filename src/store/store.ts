@@ -3,6 +3,7 @@ import { authApi } from "@/services/authApi";
 
 import authReducer from "@/context/authSlice";
 import { pageApi } from "@/services/pagesApi";
+import { setupInterceptors } from "@/utilis/setupInterceptors";
 
 
 export const store = configureStore({
@@ -16,6 +17,8 @@ export const store = configureStore({
 });
 
 // IMPORTANT: initialize axios interceptors AFTER store is created
+
+setupInterceptors(store)
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

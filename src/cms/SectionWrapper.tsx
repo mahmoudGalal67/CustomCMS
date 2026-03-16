@@ -1,24 +1,10 @@
 import { Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { useState } from "react";
-import type { ReactNode } from "react";
 
 import { useCMS } from "./store";
 import AddSectionModal from "./AddSectionModal";
-import type { Section, SectionType } from "./store";
+import type { SectionType } from "./store";
 
-/* ------------------------------------------------------------------ */
-/* Props */
-/* ------------------------------------------------------------------ */
-
-// interface SectionWrapperProps {
-//   section: Section;
-//   index: number;
-//   children: ReactNode;
-// }
-
-/* ------------------------------------------------------------------ */
-/* Component */
-/* ------------------------------------------------------------------ */
 
 export default function SectionWrapper({ section, index, children }: any) {
   const { selectedId, setSelectedId, deleteSection, moveSection, addSection } =

@@ -6,6 +6,7 @@ import { useCMS } from "../../cms/store";
 import SectionWrapper from "../../cms/SectionWrapper";
 import Hero from "../../cms/section-types/Hero";
 import Text from "../../cms/section-types/Text";
+import Banner from "../../cms/section-types/Banner";
 
 import { useEffect, type FC } from "react";
 import { useGetPageQuery } from "@/services/pagesApi";
@@ -14,7 +15,7 @@ import { useGetPageQuery } from "@/services/pagesApi";
 /* Types */
 /* ------------------------------------------------------------------ */
 
-type SectionType = "hero" | "text";
+type SectionType = "hero" | "text" | 'banner';
 
 interface BaseSection {
   id: string;
@@ -37,6 +38,7 @@ interface HomeProps {
 const MAP: Record<SectionType, FC<any>> = {
   hero: Hero,
   text: Text,
+  banner: Banner,
 };
 
 /* ------------------------------------------------------------------ */
@@ -63,7 +65,6 @@ export default function Home({ editable }: HomeProps) {
 
   if (isLoading) return <div>Loading...</div>;
   if (!data) return null;
-  console.log(pages);
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -81,8 +82,10 @@ export default function Home({ editable }: HomeProps) {
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      {...provided.dragHandleProps}
                     >
+                      <div {...provided.dragHandleProps} className="cursor-grab">
+                        ☰ Drag
+                      </div>
                       <SectionWrapper section={s} index={i}>
                         <Component {...s.props} id={s.id} />
                       </SectionWrapper>
