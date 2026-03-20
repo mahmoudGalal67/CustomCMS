@@ -16,43 +16,48 @@ export default function SectionWrapper({ section, index, children }: any) {
 
   return (
     <div
-      className={`relative mb-4 group ${active ? "ring-4 ring-blue-500 rounded" : ""}`}
+      className={`relative mb-4 group ${active ? "ring-4 ring-blue-500 rounded shadow" : ""}`}
       onClick={() => setSelectedId(section.id)}
     >
       {active && (
-        <div className="absolute -top-4 right-4 flex gap-1 bg-white shadow rounded p-1 z-10">
+        <div className="absolute -top-4 right-4 flex gap-2 bg-white shadow rounded p-1 z-10">
           <button
             type="button"
+            className="cursor-pointer hover:scale-110"
             onClick={(e) => {
               e.stopPropagation();
               setShowAdd(true);
             }}
           >
-            <Plus size={16} />
+            <Plus size={16} color="blue" />
           </button>
 
           <button
             type="button"
+            className="cursor-pointer hover:scale-110"
+
             onClick={(e) => {
               e.stopPropagation();
               deleteSection(section.id);
             }}
           >
-            <Trash2 size={16} />
+            <Trash2 size={16} color="red" />
           </button>
 
           <button
             type="button"
+            className="cursor-pointer hover:scale-110"
             onClick={(e) => {
               e.stopPropagation();
               moveSection(index, index - 1);
             }}
           >
-            <ArrowUp size={16} />
+            <ArrowUp size={16} color="green" />
           </button>
 
           <button
             type="button"
+            className="cursor-pointer hover:scale-110"
             onClick={(e) => {
               e.stopPropagation();
               moveSection(index, index + 1);

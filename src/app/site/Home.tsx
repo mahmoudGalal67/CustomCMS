@@ -7,15 +7,17 @@ import SectionWrapper from "../../cms/SectionWrapper";
 import Hero from "../../cms/section-types/Hero";
 import Text from "../../cms/section-types/Text";
 import Banner from "../../cms/section-types/Banner";
+import sliderFeaturedProducts from "../../cms/section-types/SliderFeaturedProducts";
 
 import { useEffect, type FC } from "react";
 import { useGetPageQuery } from "@/services/pagesApi";
+import { Move } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /* Types */
 /* ------------------------------------------------------------------ */
 
-type SectionType = "hero" | "text" | 'banner';
+type SectionType = "hero" | "text" | 'banner' | 'sliderFeaturedProducts';
 
 interface BaseSection {
   id: string;
@@ -39,6 +41,7 @@ const MAP: Record<SectionType, FC<any>> = {
   hero: Hero,
   text: Text,
   banner: Banner,
+  sliderFeaturedProducts: sliderFeaturedProducts,
 };
 
 /* ------------------------------------------------------------------ */
@@ -83,8 +86,8 @@ export default function Home({ editable }: HomeProps) {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                     >
-                      <div {...provided.dragHandleProps} className="cursor-grab">
-                        ☰ Drag
+                      <div {...provided.dragHandleProps} className="cursor-move p-2 -mb-4 z-10 relative bg-white w-fit rounded-md shadow">
+                        <Move />
                       </div>
                       <SectionWrapper section={s} index={i}>
                         <Component {...s.props} id={s.id} />

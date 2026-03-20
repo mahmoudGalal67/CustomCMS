@@ -7,7 +7,7 @@ import { useAddToUserPageMutation } from "@/services/pagesApi";
 /* Types */
 /* ------------------------------------------------------------------ */
 
-export type SectionType = "hero" | "text" | 'banner';
+export type SectionType = "hero" | "text" | 'banner' | 'sliderFeaturedProducts';
 
 export interface HeroProps {
   title: string;
@@ -21,8 +21,12 @@ export interface TextProps {
 export interface BannerProps {
   slides: { id: string, title: string, subTitle: string, image: string }[];
 }
+export interface sliderFeaturedProductsProps {
+  products: string[];
+  title: string;
+}
 
-export type SectionProps = HeroProps | TextProps | BannerProps;
+export type SectionProps = HeroProps | TextProps | BannerProps | sliderFeaturedProductsProps;
 
 export interface Section {
   id: string;
@@ -174,6 +178,9 @@ export function CMSProvider({ children }: CMSProviderProps) {
             slides: [
               { id: nanoid(), title: "Banner Title", subTitle: "banner subTitle", image: '' }
             ]
+          } : type === 'sliderFeaturedProducts' ? {
+            products: [],
+            title: 'Featured Products'
           } : {
             text: "New text section",
           },
