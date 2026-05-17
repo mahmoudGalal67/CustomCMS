@@ -14,11 +14,13 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AnimatePresence } from "framer-motion";
 import SuccessButton from "@/components/SuccessButton";
-import UploadButton from "@/components/UploadButton";
-import SideBarEditContentSection from "@/cms/SideBarEditContentSections/FeaturedSliderProducts";
+import SidebarEditFeatureSection from "@/cms/SideBarEditContentSections/FeaturedSliderProducts";
+import BannersSideBar from "./SideBarEditContentSections/BannersSideBar";
+import SideBarOfferProducts from "./SideBarEditContentSections/SideBarOfferProducts";
+import CategorySecationSidear from "./SideBarEditContentSections/CategorySecationSidear";
 
 export default function RightSidebar() {
-  const { selectedSection, updateProp, saveToBackend, success, isLoading } = useCMS();
+  const { selectedSection, saveToBackend, success, isLoading } = useCMS();
 
   if (!selectedSection) {
     return (
@@ -54,91 +56,10 @@ export default function RightSidebar() {
           <SidebarGroupLabel>Section Settings</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {selectedSection.type == 'sliderFeaturedProducts' ? <SideBarEditContentSection  {...(selectedSection as any)} /> :
-                Object.entries(selectedSection.props).map(([key, value]) => (
-                  <div key={key}>
-                    <label className="text-sm font-medium capitalize mb-2 block">
-                      {key}
-                    </label>
-
-                    {Array.isArray(value) ? value.map((slide: any, i: number) => (
-                      <div className="flex flex-col gap-3 my-2 shadow p-2">
-                        {Object.entries(slide).map(([key]) => {
-
-                          if (key == 'id') {
-                            return null
-                          }
-                          else if (key == 'image') {
-                            return <UploadButton selectedSection={selectedSection} slide={slide} updateProp={updateProp} />
-                          }
-                          else {
-                            return (<input
-                              className="w-full border p-2 rounded"
-                              value={slide[key]}
-                              onChange={(e) =>
-                                updateProp(selectedSection.id, "slides", (prevSlides: any = []) =>
-                                  prevSlides.map((prevSlide: any) =>
-                                    prevSlide.id === slide.id
-                                      ? { ...prevSlide, [key]: e.target.value }
-                                      : prevSlide
-                                  )
-                                )
-                              }
-                            />)
-                          }
-
-                        })}
-                        {
-                          value.length > 1 &&
-                          <button
-                            type="submit"
-                            onClick={() =>
-                              updateProp(selectedSection.id, "slides", (prevSlides = []) =>
-                                prevSlides.filter((prevSlide: any) => prevSlide.id !== slide.id)
-                              )
-                            }
-                            className="cursor-pointer flex w-full justify-center rounded-md bg-[red] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                          > Delete Slide</button>
-                        }
-
-                        {i == value.length - 1 && <button
-                          type="submit"
-                          onClick={() =>
-                            updateProp(selectedSection.id, "slides", (prevSlides = []) => [
-                              ...prevSlides,
-                              {
-                                id: crypto.randomUUID(),
-                                title: "New Slide",
-                                subTitle: "Subtitle",
-                                image: "",
-                              },
-                            ])
-                          }
-                          className="cursor-pointer flex w-full justify-center rounded-md bg-[#0F172A] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                        >➕ Add Slide</button>}
-                      </div>
-
-                    )) : key === "bg" ? (
-                      <input
-                        type="color"
-                        value={value}
-                        onChange={(e) =>
-                          updateProp(selectedSection.id, key, e.target.value)
-                        }
-                        className="w-full h-8 rounded-md overflow-hidden"
-                      />
-                    ) : (
-                      <input
-                        className="w-full border p-2 rounded"
-                        value={value}
-                        onChange={(e) =>
-                          updateProp(selectedSection.id, key, e.target.value)
-                        }
-                      />
-                    )}
-                  </div>
-                ))
+              {selectedSection.type == 'sliderFeaturedProducts' ? <SidebarEditFeatureSection  {...(selectedSection as any)} /> : selectedSection.type == 'CountDownOffers' ? <SideBarOfferProducts /> : selectedSection.type == 'CategorySecation' ? <CategorySecationSidear />
+                : <BannersSideBar />
               }
+
             </SidebarMenu>
             <div className="flex gap-2 my-4">
               <button

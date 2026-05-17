@@ -5,10 +5,10 @@ import { baseApi } from "./baseApi";
 export const ProductSlice = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         // Step 2: Define endpoints
-        getProducts: builder.query<any, { search?: string; category?: string }>({
-            query: ({ search, category }) => ({
+        getProducts: builder.query<any, { search?: string; category?: string, limit?: number }>({
+            query: ({ search, category, limit }) => ({
                 url: "/products",
-                params: { search, category },
+                params: { search, category, limit },
             }),
             providesTags: ["Products"],
         }),
@@ -17,6 +17,11 @@ export const ProductSlice = baseApi.injectEndpoints({
                 url: "/products/all/names",
             }),
             providesTags: ["Products"],
+        }),
+        getAllCategories: builder.query({
+            query: () => ({
+                url: "/categories",
+            }),
         }),
         getProductsByNamesOrIds: builder.query({
             query: ({ ids, names }) => ({
@@ -37,6 +42,7 @@ export const ProductSlice = baseApi.injectEndpoints({
 export const {
     useGetProductsQuery,
     useGetProductsNameQuery,
+    useGetAllCategoriesQuery,
     useGetProductsByNamesOrIdsQuery,
     useGetProductByIdQuery,
 } = ProductSlice;

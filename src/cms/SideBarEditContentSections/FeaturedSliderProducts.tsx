@@ -2,14 +2,19 @@ import { MultiSelect } from "@/components/MultiSlectionInput";
 import { useEffect, useState } from "react";
 import { useCMS, } from "../store";
 import { useGetProductsNameQuery } from "@/services/ProductsApi";
-
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 
 export default function SideBarEditContentSection() {
     const { selectedSection, updateProp } = useCMS();
     const { data: productsNames } = useGetProductsNameQuery(undefined);
     const [value, setValue] = useState<string[]>((selectedSection?.props as any)?.products || [])
-    console.log(selectedSection)
 
     useEffect(() => {
         if (selectedSection) {
@@ -32,7 +37,25 @@ export default function SideBarEditContentSection() {
                     onChange={(e) => updateProp(selectedSection?.id || '', "title", e.target.value)}
                 />
             </div>
+            <div className="w-full h-full my-2">
+                <Select
+                    onValueChange={(value) => updateProp(
+                        selectedSection?.id || "",
+                        "slider",
+                        value === "true" // ✅ convert back to boolean
+                    )}
+                    value={String((selectedSection?.props as any).slider)}
 
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select Products Layout" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value='false'>Static</SelectItem>
+                        <SelectItem value='true'>Slider</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
             <div className="w-full h-full my-2">
                 <MultiSelect
                     options={productsNames}

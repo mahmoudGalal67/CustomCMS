@@ -6,8 +6,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AdminLayout from "./app/admin/layout.jsx";
 import HomeEditor from "./app/admin/pages/HomeEditor.jsx";
 import BrandSettings from "./app/admin/pages/BrandSettings.jsx";
-import SocialSettings from "./app/admin/pages/SocialSettings.jsx";
-import Home from "./app/site/Home.jsx";
+import Settings from "./app/admin/pages/Settings.js";
+import Home from "./app/site/Home.js";
 import Login from "./app/site/Login.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 
@@ -20,7 +20,7 @@ export default function App() {
           <Route index element={<Navigate to="home" />} />
           <Route path="home" element={<HomeEditor />} />
           <Route path="brand" element={<BrandSettings />} />
-          <Route path="socials" element={<SocialSettings />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Route>
       <Route path="/login" element={<Login />} />

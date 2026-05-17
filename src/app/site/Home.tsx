@@ -5,19 +5,20 @@ import type { DropResult } from "@hello-pangea/dnd";
 import { useCMS } from "../../cms/store";
 import SectionWrapper from "../../cms/SectionWrapper";
 import Hero from "../../cms/section-types/Hero";
-import Text from "../../cms/section-types/Text";
 import Banner from "../../cms/section-types/Banner";
 import sliderFeaturedProducts from "../../cms/section-types/SliderFeaturedProducts";
+import CountDownOffers from "../../cms/section-types/CountDownOffers";
 
 import { useEffect, type FC } from "react";
 import { useGetPageQuery } from "@/services/pagesApi";
 import { Move } from "lucide-react";
+import CategorySecation from "@/cms/section-types/CategorySection";
 
 /* ------------------------------------------------------------------ */
 /* Types */
 /* ------------------------------------------------------------------ */
 
-type SectionType = "hero" | "text" | 'banner' | 'sliderFeaturedProducts';
+type SectionType = "hero" | 'banner' | 'sliderFeaturedProducts' | 'CountDownOffers' | 'CategorySecation';
 
 interface BaseSection {
   id: string;
@@ -39,9 +40,10 @@ interface HomeProps {
 
 const MAP: Record<SectionType, FC<any>> = {
   hero: Hero,
-  text: Text,
   banner: Banner,
   sliderFeaturedProducts: sliderFeaturedProducts,
+  CountDownOffers: CountDownOffers,
+  CategorySecation: CategorySecation,
 };
 
 /* ------------------------------------------------------------------ */

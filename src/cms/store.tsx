@@ -7,7 +7,7 @@ import { useAddToUserPageMutation } from "@/services/pagesApi";
 /* Types */
 /* ------------------------------------------------------------------ */
 
-export type SectionType = "hero" | "text" | 'banner' | 'sliderFeaturedProducts';
+export type SectionType = "hero" | "text" | 'banner' | 'sliderFeaturedProducts' | 'CountDownOffers' | 'CategorySecation';
 
 export interface HeroProps {
   title: string;
@@ -24,9 +24,19 @@ export interface BannerProps {
 export interface sliderFeaturedProductsProps {
   products: string[];
   title: string;
+  slider?: boolean
+}
+export interface CountDownOffers {
+  offers: any;
+  title: string;
+}
+export interface CategorySecation {
+  title: string;
+  limit: number;
+  category: string;
 }
 
-export type SectionProps = HeroProps | TextProps | BannerProps | sliderFeaturedProductsProps;
+export type SectionProps = HeroProps | TextProps | BannerProps | sliderFeaturedProductsProps | CountDownOffers | CategorySecation;
 
 export interface Section {
   id: string;
@@ -180,10 +190,19 @@ export function CMSProvider({ children }: CMSProviderProps) {
             ]
           } : type === 'sliderFeaturedProducts' ? {
             products: [],
-            title: 'Featured Products'
-          } : {
-            text: "New text section",
-          },
+            title: 'Featured Products',
+            slider: false,
+          } : type === 'CountDownOffers' ? {
+            offers: [],
+            title: 'Special Offers'
+          } : type == "CategorySecation" ? {
+            category: '',
+            limit: 10,
+            title: 'Category Products'
+          }
+            : {
+              text: "New text section",
+            },
     };
 
     const arr = [...pages.home];
