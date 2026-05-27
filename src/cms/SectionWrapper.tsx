@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { useCMS } from "./store";
 import AddSectionModal from "./AddSectionModal";
-import type { SectionType } from "./store";
+import type { SectionType } from "./Types";
 
 
 export default function SectionWrapper({ section, index, children }: any) {
@@ -13,7 +13,6 @@ export default function SectionWrapper({ section, index, children }: any) {
   const [showAdd, setShowAdd] = useState<boolean>(false);
 
   const active = selectedId === section.id;
-
   return (
     <div
       className={`relative mb-4 group ${active ? "ring-4 ring-blue-500 rounded shadow" : ""}`}

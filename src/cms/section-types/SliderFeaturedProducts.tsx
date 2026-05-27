@@ -1,7 +1,8 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import { Autoplay, Pagination } from 'swiper/modules';
 
-import { useCMS, type sliderFeaturedProductsProps } from "../store";
+import { useCMS } from "../store";
+import { type sliderFeaturedProductsProps } from "../Types";
 import { useGetProductsByNamesOrIdsQuery } from '@/services/ProductsApi';
 
 

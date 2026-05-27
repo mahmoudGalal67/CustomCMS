@@ -18,9 +18,14 @@ import SidebarEditFeatureSection from "@/cms/SideBarEditContentSections/Featured
 import BannersSideBar from "./SideBarEditContentSections/BannersSideBar";
 import SideBarOfferProducts from "./SideBarEditContentSections/SideBarOfferProducts";
 import CategorySecationSidear from "./SideBarEditContentSections/CategorySecationSidear";
+import { Input } from "@/components/ui/input";
 
 export default function RightSidebar() {
-  const { selectedSection, saveToBackend, success, isLoading } = useCMS();
+  const { selectedSection, saveToBackend, success, isLoading, updatePageProp, currentPageData } = useCMS();
+
+
+  const { toggleSidebar, open, openMobile } = useSidebar();
+  const isMobile = useIsMobile();
 
   if (!selectedSection) {
     return (
@@ -29,10 +34,6 @@ export default function RightSidebar() {
       </aside>
     );
   }
-
-  const { toggleSidebar, open, openMobile } = useSidebar();
-  const isMobile = useIsMobile();
-
   const isOpen = isMobile ? openMobile : open;
 
   return (
@@ -53,10 +54,31 @@ export default function RightSidebar() {
       </Button>
       <SidebarContent>
         <SidebarGroup>
+          <SidebarGroupLabel>Page Settings</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="flex flex-col gap-2">
+              <Input
+                placeholder="Enter Page title..."
+                value={currentPageData.title}
+                onChange={(e) =>
+                  updatePageProp("title", e.target.value)
+                }
+              />
+              <Input
+                placeholder="Enter Page slug..."
+                value={currentPageData.slug}
+                onChange={(e) =>
+                  updatePageProp("slug", e.target.value)
+                }
+              />
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
           <SidebarGroupLabel>Section Settings</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {selectedSection.type == 'sliderFeaturedProducts' ? <SidebarEditFeatureSection  {...(selectedSection as any)} /> : selectedSection.type == 'CountDownOffers' ? <SideBarOfferProducts /> : selectedSection.type == 'CategorySecation' ? <CategorySecationSidear />
+              {selectedSection.type == 'sliderFeaturedProducts' ? <SidebarEditFeatureSection /> : selectedSection.type == 'CountDownOffers' ? <SideBarOfferProducts /> : selectedSection.type == 'CategorySecation' ? <CategorySecationSidear />
                 : <BannersSideBar />
               }
 

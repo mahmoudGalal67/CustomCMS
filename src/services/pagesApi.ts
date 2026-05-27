@@ -7,11 +7,27 @@ export const pageApi = baseApi.injectEndpoints({
             query: () => ({ url: "/pages", method: "GET" }),
             providesTags: ["pages"],
         }),
+        showPage: builder.query({
+            query: ({ id }) => ({ url: `/pages/${id}`, method: "GET" }),
+            providesTags: ["pages"],
+        }),
+        getPageLinks: builder.query({
+            query: () => ({ url: "/pages/pagesLinks", method: "GET" }),
+            providesTags: ["pages"],
+        }),
 
-        addToUserPage: builder.mutation({
+        addToPage: builder.mutation({
             query: (data) => ({
                 url: "/pages",
                 method: "POST",
+                body: data,
+            }),
+            invalidatesTags: ["pages"],
+        }),
+        updatePage: builder.mutation({
+            query: ({ slug, data }) => ({
+                url: `/pages/${slug}`,
+                method: "PUT",
                 body: data,
             }),
             invalidatesTags: ["pages"],
@@ -35,7 +51,10 @@ export const pageApi = baseApi.injectEndpoints({
 
 export const {
     useGetPageQuery,
-    useAddToUserPageMutation,
+    useShowPageQuery,
+    useGetPageLinksQuery,
+    useAddToPageMutation,
+    useUpdatePageMutation,
     useRemoveFromPageMutation,
     useMergePageMutation,
 } = pageApi;

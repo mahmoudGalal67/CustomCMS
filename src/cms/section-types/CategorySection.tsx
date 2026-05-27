@@ -1,6 +1,7 @@
 
 
-import { useCMS, type CategorySecation } from "../store";
+import { useCMS } from "../store";
+import { type CategorySecation } from "../Types";
 import { useGetProductsQuery } from '@/services/ProductsApi';
 
 
@@ -13,7 +14,6 @@ export default function CategorySecation({ category, title, id, limit }: Categgo
     const { data: FilteredPRoducts } = useGetProductsQuery({ category: category, limit: limit });
     const active = selectedSection?.id === id;
     const isEditable = !!active; // or pass editable prop
-    console.log(limit)
     return (
         <section className={isEditable ? "pointer-events-none" : ""}>
             <div className="bg-white">

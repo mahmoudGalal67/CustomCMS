@@ -2,28 +2,21 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 import type { DropResult } from "@hello-pangea/dnd";
 
-import { useCMS } from "../../cms/store";
-import SectionWrapper from "../../cms/SectionWrapper";
-import Hero from "../../cms/section-types/Hero";
-import Banner from "../../cms/section-types/Banner";
-import sliderFeaturedProducts from "../../cms/section-types/SliderFeaturedProducts";
-import CountDownOffers from "../../cms/section-types/CountDownOffers";
+import { useCMS } from "../../../cms/store";
+import SectionWrapper from "../../../cms/SectionWrapper";
+import Hero from "../../../cms/section-types/Hero";
+import Banner from "../../../cms/section-types/Banner";
+import sliderFeaturedProducts from "../../../cms/section-types/SliderFeaturedProducts";
+import CountDownOffers from "../../../cms/section-types/CountDownOffers";
 import Text from "@/cms/section-types/Text";
 
-import { useEffect, type FC } from "react";
-import { useGetPageLinksQuery, useGetPageQuery } from "@/services/pagesApi";
+import { useEffect, useState, type FC } from "react";
 import { Move } from "lucide-react";
 import CategorySecation from "@/cms/section-types/CategorySection";
-import type { Pages, SectionType } from "@/cms/Types";
-
-/* ------------------------------------------------------------------ */
-/* Types */
-/* ------------------------------------------------------------------ */
-
-
-interface HomeProps {
-  editable: boolean;
-}
+import type { SectionType, Page, Pages } from "@/cms/Types";
+import { nanoid } from "nanoid";
+import { useParams } from "react-router-dom";
+import { useShowPageQuery } from "@/services/pagesApi";
 
 /* ------------------------------------------------------------------ */
 /* Section map */
@@ -42,31 +35,37 @@ const MAP: Record<SectionType, FC<any>> = {
 /* Component */
 /* ------------------------------------------------------------------ */
 
-export default function Home({ editable }: HomeProps) {
-  const { pages, moveSection, setcurrentPage } = useCMS();
+export default function StaticPage() {
+  const { id } = useParams();
+  const { data, isLoading } = useShowPageQuery({ id });
 
+  const { moveSection, setcurrentPage, pages } = useCMS();
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
     moveSection(result.source.index, result.destination.index);
   };
   useEffect(() => {
-    setcurrentPage('1')
-  }, []);
+    if (data) {
+      setcurrentPage(data.id)
+    }
+  }, [data]);
 
-
+  if (isLoading) return <div>Loading...</div>;
+  if (!data) return null;
+  console.log(data)
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="page">
         {(provided) => (
           <div ref={provided.innerRef} {...provided.droppableProps}>
-            {pages.find((page) => page.title == 'Home')?.sections.map((s, i) => {
+            {pages.find((page) => page.id == data.id)?.sections.map((s, i) => {
               const Component = MAP[s.type];
 
               if (!Component) return null;
 
-              return editable ? (
+              return (
                 <Draggable key={s.id} draggableId={s.id} index={i}>
                   {(provided) => (
                     <div
@@ -82,9 +81,7 @@ export default function Home({ editable }: HomeProps) {
                     </div>
                   )}
                 </Draggable>
-              ) : (
-                <Component key={s.id} {...s.props} />
-              );
+              )
             })}
 
             {provided.placeholder}

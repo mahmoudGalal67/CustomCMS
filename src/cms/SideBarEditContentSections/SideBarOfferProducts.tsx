@@ -12,7 +12,8 @@ import {
 import { Card } from "@/components/ui/card"
 import { Trash, Plus } from "lucide-react"
 import { useGetProductsNameQuery } from "@/services/ProductsApi"
-import { useCMS, type CountDownOffers } from "../store"
+import { useCMS } from "../store"
+import { type CountDownOffers } from "../Types"
 
 function formatForInput(isoString: string) {
     const date = new Date(isoString)

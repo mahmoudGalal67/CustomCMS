@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { SECTION_REGISTRY } from "./section-types/registry";
-import type { SectionType } from "./store";
+import type { SectionType } from "./Types";
 
 interface AddSectionModalProps {
   onSelect: (type: SectionType) => void;

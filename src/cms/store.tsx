@@ -1,76 +1,8 @@
-import { createContext, useContext, useState } from "react";
-import type { ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { nanoid } from "nanoid";
-import { useAddToUserPageMutation } from "@/services/pagesApi";
+import { useGetPageLinksQuery, useGetPageQuery, useUpdatePageMutation } from "@/services/pagesApi";
+import type { CMSContextValue, CMSProviderProps, LinkType, Page, Pages, Section, SectionType } from "./Types";
 
-/* ------------------------------------------------------------------ */
-/* Types */
-/* ------------------------------------------------------------------ */
-
-export type SectionType = "hero" | "text" | 'banner' | 'sliderFeaturedProducts' | 'CountDownOffers' | 'CategorySecation';
-
-export interface HeroProps {
-  title: string;
-  subtitle: string;
-  bg: string;
-}
-
-export interface TextProps {
-  text: string;
-}
-export interface BannerProps {
-  slides: { id: string, title: string, subTitle: string, image: string }[];
-}
-export interface sliderFeaturedProductsProps {
-  products: string[];
-  title: string;
-  slider?: boolean
-}
-export interface CountDownOffers {
-  offers: any;
-  title: string;
-}
-export interface CategorySecation {
-  title: string;
-  limit: number;
-  category: string;
-}
-
-export type SectionProps = HeroProps | TextProps | BannerProps | sliderFeaturedProductsProps | CountDownOffers | CategorySecation;
-
-export interface Section {
-  id: string;
-  type: SectionType;
-  props: SectionProps;
-}
-
-export interface Pages {
-  home: Section[];
-}
-
-interface CMSContextValue {
-  pages: Pages;
-  setPages: (pages: Pages) => void;
-  selectedId: string | null;
-  setSelectedId: (id: string | null) => void;
-  selectedSection: Section | null;
-
-  updateProp: (id: string, prop: any, value: any) => void;
-
-  deleteSection: (id: string) => void;
-  moveSection: (from: number, to: number) => void;
-  addSection: (index: number, type: SectionType) => void;
-
-  undo: () => void;
-  redo: () => void;
-  saveToBackend: () => Promise<void>;
-  isLoading: boolean;
-  success: boolean;
-}
-
-interface CMSProviderProps {
-  children: ReactNode;
-}
 
 /* ------------------------------------------------------------------ */
 /* Context */
@@ -84,20 +16,27 @@ const CMSContext = createContext<CMSContextValue | null>(null);
 
 export function CMSProvider({ children }: CMSProviderProps) {
   const [success, setSuccess] = useState(false);
-  const [updatePage, { isLoading }] = useAddToUserPageMutation();
+  const [updatePage, { isLoading }] = useUpdatePageMutation();
+  const { data } = useGetPageQuery(undefined);
+  const { data: pagesLinks } = useGetPageLinksQuery(undefined);
 
-  const [pages, setPages] = useState<any>({
-    home: [
-    ],
-  });
 
-  // const DummyPages = [{ "id": "id1", "type": "hero", "props": { "title": "Welcome", "subtitle": "Click to edit", "bg": "#0f172a" } }, { "id": "Ir_t6VJFrYJshA60YYhuc", "type": "banner", "props": { "slides": [{ "id": "ecd7c7d7-3b7b-4567-80c6-beb8410334ea", "title": "New Slide 01", "subTitle": "Subtitle 01", "image": "\/storage\/uploads\/u0ESKNYvENjP9Zx8NphnRTYWfUx0GBxhgJ4cLRZH.jpg" }, { "id": "3f0d96fc-6faa-4975-acdd-f6f428d22e2b", "title": "New Slide 02", "subTitle": "Subtitle 02", "image": "\/storage\/uploads\/bo5j7f5Wu2M87y6HmGdbr0yTXGZhxix5Vv91GKLs.jpg" }] } }, { "id": "FvwCJvh0UOgnd82LcwKpL", "type": "hero", "props": { "title": "New Hero 2", "subtitle": "test", "bg": "#020617" } }]
+
+  const [pages, setPages] = useState<any>([]);
+  const [pageLinks, setpageLinks] = useState<LinkType[]>([{ id: "", title: "", slug: '' }]);
+  const [currentPage, setcurrentPage] = useState<string>('');
+
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   /* ---------- History ---------- */
-  const [history, setHistory] = useState<Pages[]>([]);
-  const [redoStack, setRedoStack] = useState<Pages[]>([]);
+  const [history, setHistory] = useState<Pages>([]);
+  const [redoStack, setRedoStack] = useState<Pages>([]);
+
+  const currentPageData: Page = useMemo(() => pages.find(
+    (page: Page) =>
+      page.id == currentPage
+  ), [currentPage, pages])
 
   const saveHistory = (newPages: Pages) => {
     setHistory((prev) => [...prev, pages]);
@@ -124,7 +63,22 @@ export function CMSProvider({ children }: CMSProviderProps) {
   };
 
 
-  const selectedSection = pages.home?.find((s: any) => s.id === selectedId) ?? null;
+  const selectedSection = useMemo(() => {
+    return (currentPageData?.sections.find(
+      (s: any) => s.id == selectedId
+    ) ?? null)
+  }, [currentPageData, selectedId])
+
+  useEffect(() => {
+    if (data) {
+      setPages(data);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    setpageLinks(pagesLinks)
+  }, [pagesLinks])
+
 
   /* ---------- ACTIONS ---------- */
 
@@ -133,44 +87,104 @@ export function CMSProvider({ children }: CMSProviderProps) {
     prop: string,
     value: any | ((prev: any) => any)
   ) => {
-    const newPages: Pages = {
-      ...pages,
-      home: pages.home?.map((s: Section) => {
-        if (s.id !== id) return s;
-
-        const prevValue = (s.props as any)[prop];
-
+    const newPages: Pages = pages.map(
+      (page: Page) => {
+        if (page.id !== currentPage) {
+          return page;
+        }
         return {
-          ...s,
-          props: {
-            ...s.props,
-            [prop]:
-              typeof value === "function"
-                ? value(prevValue) // updater
-                : value,
-          },
+          ...page,
+          sections: page.sections.map(
+            (s: Section) => {
+              if (s.id !== id) return s;
+
+              const prevValue =
+                (s.props as any)[prop];
+
+              return {
+                ...s,
+
+                props: {
+                  ...s.props,
+
+                  [prop]:
+                    typeof value === "function"
+                      ? value(prevValue)
+                      : value,
+                },
+              };
+            }
+          ),
         };
-      }),
-    };
+      }
+    );
+
+    saveHistory(newPages);
+  };
+
+  const updatePageProp = (
+    prop: string,
+    value: any | ((prev: any) => any)
+  ) => {
+    const newPages: Pages = pages.map(
+      (page: Page) => {
+        if (page.id !== currentPage) {
+          return page;
+        }
+        return {
+          ...page,
+          [prop]: value
+        };
+      }
+    );
 
     saveHistory(newPages);
   };
   const deleteSection = (id: string) => {
-    const newPages: Pages = {
-      ...pages,
-      home: pages.home?.filter((s: any) => s.id !== id),
-    };
+    if (!currentPageData) return;
+
+    const newPages: Pages = pages.map(
+      (page: Page) => {
+        if (
+          page.id !== currentPageData.id
+        ) {
+          return page;
+        }
+
+        return {
+          ...page,
+
+          sections: page.sections.filter(
+            (s: any) => s.id !== id
+          ),
+        };
+      }
+    );
 
     saveHistory(newPages);
+
     setSelectedId(null);
   };
-
   const moveSection = (from: number, to: number) => {
-    const arr = [...pages.home];
-    const [removed] = arr.splice(from, 1);
-    arr.splice(to, 0, removed);
+    if (!currentPageData) return;
 
-    saveHistory({ ...pages, home: arr });
+    const newPages: Pages = pages.map(
+      (page: Page) => {
+        if (
+          page.id !== currentPageData.id
+        ) {
+          return page;
+        }
+        const arr = [...page.sections];
+        const [removed] = arr.splice(from, 1);
+        arr.splice(to, 0, removed);
+        return {
+          ...page,
+          sections: arr
+        };
+      }
+    );
+    saveHistory(newPages);
   };
 
   const addSection = (index: number, type: SectionType) => {
@@ -205,15 +219,39 @@ export function CMSProvider({ children }: CMSProviderProps) {
             },
     };
 
-    const arr = [...pages.home];
-    arr.splice(index + 1, 0, newSection);
+    if (!currentPageData) return;
 
-    saveHistory({ ...pages, home: arr });
+    const newPages: Pages = pages.map(
+      (page: Page) => {
+        if (
+          page.id !== currentPageData.id
+        ) {
+          return page;
+        }
+        const arr = [...page.sections];
+        arr.splice(index + 1, 0, newSection);
+        return {
+          ...page,
+          sections: arr
+        };
+      }
+    );
+
+    saveHistory(newPages);
   };
 
   const saveToBackend = async () => {
     try {
-      await updatePage({ title: 'Home', content: pages.home });
+      await updatePage({
+        slug: currentPageData.slug
+        , data: {
+          title: currentPageData.title, sections: pages
+            .find(
+              (page: Page) =>
+                page.id === currentPage
+            ).sections
+        }
+      });
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
@@ -224,11 +262,45 @@ export function CMSProvider({ children }: CMSProviderProps) {
     }
   };
 
+  const createPage = () => {
+
+    const id = nanoid();
+
+    const page: Page = {
+      id,
+      title: "Unknown",
+      slug: "unknown",
+      sections: [
+        {
+          id: nanoid(),
+          type: "hero",
+          props: {
+            title: "New Hero",
+            subtitle: "Subtitle",
+            bg: "#020617",
+          },
+        },
+      ],
+    };
+
+    setPages((prev: Page[]) => [...prev, page]);
+
+    setcurrentPage(id);
+
+    return page;
+  };
   return (
     <CMSContext.Provider
       value={{
         pages,
         setPages,
+        currentPage,
+        setcurrentPage,
+        currentPageData,
+        createPage,
+        pageLinks,
+        setpageLinks,
+        updatePageProp,
         selectedId,
         setSelectedId,
         selectedSection,

@@ -1,3 +1,4 @@
+
 import {
   Calendar,
   ChevronRight,
@@ -6,6 +7,7 @@ import {
   Search,
   Settings,
 } from "lucide-react";
+
 
 import {
   Sidebar,
@@ -20,6 +22,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import CollapsibleMenu from "@/components/CollapsibleMenu";
+import { useCMS } from "@/cms/store";
 
 // Menu items.
 const items = [
@@ -51,6 +55,8 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const { pageLinks } = useCMS();
+
   const { toggleSidebar, open, openMobile } = useSidebar();
   const isMobile = useIsMobile();
 
@@ -67,9 +73,8 @@ export function AppSidebar() {
         className="w-6 h-6 absolute top-8 z-10 -right-4 rounded-full p-3 flex items-center justify-center transition-colors"
       >
         <ChevronRight
-          className={`w-6 h-6 font-bold transition-transform duration-300 ${
-            isOpen ? "rotate-180" : "rotate-0"
-          }`}
+          className={`w-6 h-6 font-bold transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"
+            }`}
         />
       </Button>
       <SidebarContent>
@@ -88,6 +93,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+            <CollapsibleMenu pageLinks={pageLinks} />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

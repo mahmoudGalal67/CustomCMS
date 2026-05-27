@@ -1,8 +1,9 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 
-import { useCMS, type BannerProps } from "../store";
+import { useCMS } from "../store";
 
+import { type BannerProps } from "../Types";
 
 interface BannerCompponentProps extends BannerProps {
     id: string;

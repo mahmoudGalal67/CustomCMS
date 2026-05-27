@@ -1,5 +1,5 @@
 import { useCMS } from "../store";
-import type { HeroProps } from "../store";
+import type { HeroProps } from "../Types";
 
 /* ------------------------------------------------------------------ */
 /* Props */
